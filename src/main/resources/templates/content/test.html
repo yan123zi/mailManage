@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="form-group">
+    <label class="col-sm-1 control-label">上传图片</label>
+    <input type="file" id="file1" name="file1" onchange="readFile()">
+    <span style="color: red">注:图片大小最大不能超过1M!</span>
+    <div class="col-sm-11"> </div> <img src="" id="img-id" onload="ReSizePic(this)"/>
+</div>
+
+</body>
+<script>
+    function readFile(){
+        //得到文件对象
+        var imgFile=document.getElementById('file1').files[0];
+        //创建filereader对象
+        var fileReader = new FileReader();
+        //设置回调函数，即获取到文件路径后的操作
+        fileReader.onload=function(){
+            var img =document.getElementById('img-id').src=fileReader.result;
+            console.log(fileReader.result)
+        }
+        //读取文件
+        fileReader.readAsDataURL(imgFile);
+    };
+    // readFile()
+    //设置自动生成图片缩略图
+    function ReSizePic(ThisPic){
+        var RePicWidth = 200;
+        //这里修改为您想显示的宽度值
+        // ============以下代码请勿修改==================================
+        var TrueWidth = ThisPic.width;
+        //图片实际宽度
+        var TrueHeight = ThisPic.height;
+        //图片实际高度
+        var Multiple = TrueWidth / RePicWidth;
+        //图片缩小(放大)的倍数
+        ThisPic.width = RePicWidth;
+        //图片显示的可视宽度
+        ThisPic.height = TrueHeight / Multiple;
+        //图片显示的可视高度
+        }
+</script>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:include="index::head">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>&nbsp;&nbsp;您的所有发送的邮件</div>
+            <!-- Table -->
+            <table class="table table-hover table-striped">
+                <thead>
+                <tr>
+                    <th>发件人</th>
+                    <th>收件人</th>
+                    <th>发送时间</th>
+                    <th>邮件主题</th>
+                    <th>邮件内容</th>
+                    <th>附件</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <nav style="float: right" aria-label="Page navigation">
+        </nav>
+        <div id="Email" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myEmail">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content" id="modalCon">
+                    <div class="modal-header"><b style="font-size: 20px">Subject:</b><strong id="subject"></strong><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
+                    <div id="text" class="modal-body"><textarea id="content" rows="8" style="width: 100%;"></textarea></div>
+                    <div id="FJ"></div>
+                    <div class="modal-footer"><button class="btn btn-default" data-dismiss="modal">Close</button></div>
+                </div>
+            </div>
+        </div>
+        <div id="alert" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="Alert">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+                <div class="modal-body">
+                    <h4>是否删除该邮件?</h4>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-danger" id="delEmail" data-dismiss="modal">确认删除</button>
+                    <button class="btn btn-default" data-dismiss="modal">取消删除</button>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    $(function () {
+        to_page(1);
+    });
+    function to_page(pn){
+        $.ajax({
+            url:"/mailManage/getMySend?pn="+pn,
+            type:"GET",
+            success:function (result) {
+                /**
+                 * 创建表格内容
+                 */
+                createTbody(result);
+                /**
+                 * 创建导航条
+                 */
+                createDh(result);
+            }
+        });
+    }
+    function createTbody(result){
+        var list=result.list;
+        $("tbody").empty();
+        $.each(list,function (index,con) {
+            var tr=$("<tr>");
+            var file=con.fileSend;
+            tr=createTD(tr,con);
+            var ck=$("<td>").append($("<button id='see' data-toggle='modal' data-target='#Email' class='btn btn-primary'>查看邮件</button>"));
+            var sc=$("<td>").append($("<button id='delete' class='btn btn-danger' data-toggle='modal' data-target='#alert'>删除邮件</button>"));
+            console.log(con.fileSend);
+            ck.click(function () {
+                $("#subject").text(con.subject);
+                $("#content").text(con.content);
+                var fileName=file;
+                var suffix=fileName.substring(fileName.lastIndexOf(".")+1);
+                $("#FJ").empty();
+                if(suffix=="jpeg" || suffix=="jpg" || suffix=="png"){
+                        $("<a id='img'>").attr({"href":"#"}).addClass("thumbnail").append($("<img>").attr({"src":"/mailManage/uploadFiles/"+fileName})).appendTo($("#FJ"));
+                }else {
+                        var hr=$("<hr>");
+                        hr.appendTo($("#FJ"));
+                        $("<h4>").css({"margin-left":"20px"}).append("附件："+fileName).insertAfter(hr);
+                }
+            });
+            sc.click(function () {
+                $("#delEmail").click(function () {
+                    $.ajax({
+                        url:"/mailManage/delEmail?id="+con.id,
+                        type:"DELETE",
+                        success:function (res) {
+                            to_page(result.pageNum);
+                        }
+                    });
+                });
+            });
+            tr.append(ck);
+            tr.append(sc);
+            $("tbody").append(tr);
+        });
+    }
+    function createTD(tr,content) {
+        for(var p in content){
+            if(p!="id") {
+                var td = $("<td>");
+                if (content[p].length > 25) {
+                    content[p] = content[p].substring(0, 25) + "......";
+                }
+                td.append(content[p]);
+                tr.append(td);
+            }
+        }
+        return tr;
+    }
+    function createDh(result) {
+        var nav=$("nav");
+        nav.empty();
+        var ul=$("<ul>").addClass("pagination");
+        var firstPage=$("<li>").append($("<a>").attr({"href":"#"}).append("首页"));
+        var prePage=$("<li>").append($("<a>").attr({"href":"#","aria-label":"Previous"}).append($("<span>").attr({"aria-hidden":"true"}).append("&laquo;")));
+        var lastPage=$("<li>").append($("<a>").attr({"href":"#"}).append("尾页"));
+        var nextPage=$("<li>").append($("<a>").attr({"href":"#","aria-label":"Next"}).append($("<span>").attr({"aria-hidden":"true"}).append("&raquo;")));
+        ul.append(firstPage).append(prePage);
+        if(result.hasPreviousPage==false){
+            firstPage.addClass("disabled");
+            prePage.addClass("disabled");
+        }else {
+            firstPage.click(function () {
+                to_page(1)
+            });
+            prePage.click(function () {
+                to_page(result.pageNum-1);
+            });
+        }
+        $.each(result.navigatepageNums,function(index,item){
+            var numLi=$("<li></li>").append($("<a></a>").append(item).attr("href","#"));
+            if(result.pageNum==item){
+                numLi.addClass("active");
+            }
+            numLi.click(function(){
+                to_page(item);
+            });
+            ul.append(numLi);
+        });
+        ul.append(nextPage).append(lastPage);
+        if(result.hasNextPage==false){
+            nextPage.addClass("disabled");
+            lastPage.addClass("disabled");
+        }else {
+            lastPage.click(function () {
+                to_page(result.navigateLastPage);
+            });
+            nextPage.click(function () {
+                to_page(result.pageNum+1);
+            });
+        }
+        nav.append(ul);
+    }
+    /*Date.prototype.Format = function (fmt) { //author: meizz
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "h+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }*/
+</script>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:include="index::head">
+</head>
+<body>
+    <div class="container">
+                <p id="ctx" style="display: none">[[@{/}]]</p>
+                <div class="panel panel-default" style="width: 700px;">
+                    <div class="panel-heading"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>&nbsp;&nbsp;快速电子邮件</div>
+                    <div class="panel-body">
+                        <form id="email" method="post" action="#" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <input id="TO" class="form-control" name="receiveEmail" type="text" placeholder="Email To xxx@qq.com" required="required">
+                            </div>
+                            <div class="form-group">
+                                <input id="subject" class="form-control" type="text" name="subject" placeholder="Subject" required="required">
+                            </div>
+                            <div class="form-group" style="float: right">
+                                <!--<button type="button" class="btn btn-default">-->
+                                <!--<span class="glyphicon glyphicon-file" aria-hidden="true"></span>-->
+                                <!--</button>-->
+                                <!--<span class="glyphicon glyphicon-picture" aria-hidden="true"></span>-->
+                                <input type="file" id="fileUpload" name="upload">
+                            </div>
+                            <div class="form-group">
+                                <textarea class="form-control" rows="6" name="content" placeholder="content..." required="required"></textarea>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-default" style="float: right">发送</button>
+                        </form>
+            </div>
+        </div>
+        <div>
+            <img id="img-id" src="">
+        </div>
+    </div>
+</body>
+<script>
+    $(function () {
+        $("button").click(function () {
+            console.log(($("#TO").val().length));
+            if($("#TO").val().length>0&&$("#subject").val().length>0&&$("textarea").val().length>0){
+                var sendUrl=$("#ctx").text()+"mailSend";
+                var formData=new FormData(document.getElementById("email"));
+                $(this).attr({"disabled":"disabled"});
+                var that=this;
+                $.ajax({
+                    url:sendUrl,
+                    data:formData,
+                    type:"post",
+                    contentType:false,
+                    processData:false,
+                    success:function (res) {
+                        $("#email")[0].reset();
+                        $(that).removeAttr("disabled");
+                        if(res=="Ok"){
+
+                            alert("发送成功！");
+                        }else if (res=="邮件发送出错!!!"){
+                            alert(res);
+                        }
+
+                    }
+                });
+            }
+        });
+    });
+   /* $(function () {
+        $("#email").submit(function () {
+            // $.ajax({
+            //     url:"/mailSend",
+            //
+            // });
+            // var f=document.getElementById("fileUpload").files;
+            // console.log(f[0].size);
+            // console.log(f[0].type);
+            // console.log(f[0].name);
+            // console.log($("#fileUpload").val())
+            //回显图片
+            var formData=new FormData(document.getElementById("email"));
+            // formData.append("upload",document.getElementById("fileUpload").files[0])
+            // console.log(formData);
+            // alert(formData.get("fileSend"))
+            $.ajax({
+                url:"/mailSend",
+                type:"post",
+                data:formData,
+                contentType:false, //- 必须false才会自动加上正确的Content-Type
+                processData: false, //- 必须false才会避开jQuery对 formdata 的默认处理,XMLHttpRequest会对 formdata 进行正确的处理
+                success:function (res) {
+                    alert(res)
+                }
+            });
+            // $("img").attr({"src":""+$("#fileUpload").val()});
+            // var fr = new FileReader();
+            // var $img = $('.index-bd .bd .img-wrap img').eq(0);
+            // var imgUrl = fr.readAsDataURL(new Blob(['@ViewBag.path'], { type: "text/plain" }));
+            // $img.attr('src', imgUrl);
+        });
+    });*/
+</script>
+</html>

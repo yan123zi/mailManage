@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <title>邮件管理</title>
+    <script src="../static/jquery-3.3.1.min.js" th:src="@{/static/jquery-3.3.1.min.js}"></script>
+    <link rel="stylesheet" href="../static/bootstrap-3.3.7-dist/css/bootstrap.min.css" th:href="@{/static/bootstrap-3.3.7-dist/css/bootstrap.min.css}">
+    <script src="../static/bootstrap-3.3.7-dist/js/bootstrap.min.js" th:src="@{/static/bootstrap-3.3.7-dist/js/bootstrap.min.js}"></script>
+    <style>
+        .hid {
+            height:42px;
+            color:white;
+            background-color: #374850;
+            line-height:42px;
+            display: none;
+            padding-left: 54px;
+        }
+    </style>
+</head>
+<body>
+<div class="row">
+    <p id="ctx" style="display: none">[[@{/}]]</p>
+    <nav class="nav navbar-default" style="border-bottom: #0f0f0f 1px solid;">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <a class="navbar-brand" style="margin-left: 64px;color:white;"><b>邮件管理</b></a>
+            </div>
+            <ul class="nav navbar-nav navbar-right" style="float:right;">
+                <li id="dropdown" class="dropdown" >
+                    <a class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white;cursor: pointer">EmailAccount：<i th:text="${session.account}"></i><span class="caret"></span></a>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li id="login"><a style="cursor: pointer">登录</a></li>
+                        <li id="exit"><a style="cursor:pointer;">退出</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div><!-- /.container-fluid -->
+    </nav>
+    <div id="leftPane" style="float: left">
+        <ul id="leftItem" style="list-style-type: none;margin: 0px;padding: 0px;:  ">
+            <li style="background-color: #000000"><s style="float: left;width: 20px;height: 42px;margin-right: 30px;"></s><a href="#">主导航</a></li>
+            <li><i style="float: left;width: 20px;height: 42px;margin-right: 30px;background-color: #222D32"></i><a href="#">邮件管理</a><span class="glyphicon glyphicon-menu-left" style="line-height: 42px;float: right;margin-right: 13px"></span></li>
+            <ul style="list-style-type: none;margin: 0px;padding: 0px;">
+                <li class="hid"><a id="mySend">发件箱</a></li>
+                <li class="hid"><a th:href="@{/index}">写邮件</a></li>
+            </ul>
+            <!--<li><i style="float: left;width: 20px;height: 42px;margin-right: 30px;background-color: #222D32"></i><a href="#">asdf</a><span class="glyphicon glyphicon-menu-left" style="line-height: 42px;float: right;margin-right: 13px;"></span></li>-->
+            <!--<li><i style="float: left;width: 20px;height: 42px;margin-right: 30px;background-color: #222D32"></i><a href="#">asdf</a><span class="glyphicon glyphicon-menu-left" style="line-height: 42px;float: right;margin-right: 13px;"></span></li>-->
+            <!--<li><i style="float: left;width: 20px;height: 42px;margin-right: 30px;background-color: #222D32"></i><a href="#">asdf</a><span class="glyphicon glyphicon-menu-left" style="line-height: 42px;float: right;margin-right: 13px;"></span></li>-->
+            <!--<li><i style="float: left;width: 20px;height: 42px;margin-right: 30px;background-color: #222D32"></i><a href="#">asdf</a><span class="glyphicon glyphicon-menu-left" style="line-height: 42px;float: right;margin-right: 13px;"></span></li>-->
+            <p></p>
+        </ul>
+    </div>
+    <div id="frame" class="embed-responsive embed-responsive-16by9">
+        <iframe class="embed-responsive-item" src="" name="iframe" ></iframe>
+    </div>
+</div>
+</body>
+<script>
+    $(function () {
+        //设置左边导航的样式
+        $("#leftPane").css({
+            "height":window.screen.height,
+            "backgroundColor":"#222D32",
+            "width":"250px"
+        });
+        //设置导航条的背景颜色
+        $("nav").css({
+            "backgroundColor":"#3C8DBC"
+        });
+        //#leftItem下li的函数事件绑定
+        $("#leftItem>li").css({
+            "height":"42px",
+            "color":"white",
+            "line-height":"42px",
+        }).mouseenter(function () {
+            $(this).css({"backgroundColor":"#111111"});
+            $(this).children("i").css({"backgroundColor":"#3C8DBC"})
+        }).mouseleave(function () {
+            $(this).css({"backgroundColor":"#222D32"});
+            $(this).children("i").css({"backgroundColor":"#222D32"})
+        }).each(function () {
+            setCss($(this).next("ul").children().children());
+            $(this).click(function () {
+                $(this).next("ul").children().slideToggle(800);
+                var v=$(this).children("span");
+                if(v.attr("class")=="glyphicon glyphicon-menu-left"){
+                    v.removeClass(v.attr("class")).addClass("glyphicon glyphicon-menu-down");
+                }else {
+                    v.removeClass(v.attr("class")).addClass("glyphicon glyphicon-menu-left");
+                }
+                if($(this).children("i").attr("class")=="active"){
+                    $(this).children("i").css({"background-color":"#222D32"});
+                    $(this).children("i").removeClass("active");
+                    $(this).mouseleave(function () {
+                        $(this).children("i").css({"background-color":"#222D32"});
+                    });
+                }else {
+                    $(this).children("i").css({"background-color":"#3C8DBC"});
+                    $(this).children("i").addClass("active");
+                    $(this).mouseleave(function () {
+                        $(this).children("i").css({"background-color":"#3C8DBC"});
+                    });
+                }
+            });
+        });
+        $("#leftItem li").css({"cursor":"pointer"});
+        //a标签的样式变化
+        setCss($("#leftItem>li a"));
+        //一个设置a标签样式的函数
+        function setCss(T) {
+            T.css({"text-decoration":"none","color":"#B8C7CE"}).mouseenter(function () {
+                $(this).css({"color":"white"});
+            }).mouseleave(function () {
+                $(this).css({"color":"#B8C7CE"});
+            })
+        }
+        $("#login").click(function () {
+            $("#frame iframe").attr({"src":$("#ctx").val()+"component/login"});
+        });
+        $("#frame iframe").attr({"src":$("#ctx").val()+"component/index"});
+        $("#mySend").click(function () {
+            $("#frame iframe").attr({"src":$("#ctx").val()+"component/mySend"});
+        });
+    });
+</script>
+</html>

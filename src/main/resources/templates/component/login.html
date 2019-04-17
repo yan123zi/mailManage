@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../../static/jquery-3.3.1.min.js" th:src="@{/static/jquery-3.3.1.min.js}"></script>
+    <link rel="stylesheet" href="../../static/bootstrap-3.3.7-dist/css/bootstrap.css" th:href="@{/static/bootstrap-3.3.7-dist/css/bootstrap.min.css}">
+    <script src="../../static/bootstrap-3.3.7-dist/js/bootstrap.min.js" th:src="@{/static/bootstrap-3.3.7-dist/js/bootstrap.min.js}"></script>
+</head>
+<body>
+    <div class="container" style="padding-top: 100px">
+        <form id="LoginForm" class="form-horizontal" action="#" th:action="@{/loginIn}">
+            <div class="form-group">
+                <label for="inputEmail" class="col-sm-2 control-label">邮箱账号:</label>
+                <div class="col-sm-10">
+                    <input type="email" class="form-control" name="emailAccount" id="inputEmail" placeholder="Email">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputAthuCode" class="col-sm-2 control-label">邮箱授权码:</label>
+                <div class="col-sm-10">
+                    <input type="password" class="form-control" name="authCode" id="inputAthuCode" placeholder="Athu Code">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button id="submit" type="submit" class="btn btn-default">Sign in</button>
+                </div>
+            </div>
+
+        </form>
+        <div id="notFormalEmail" class="alert alert-danger alert-dismissible" role="alert" style="display:none;">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong>警告!</strong> 邮箱地址必须是qq邮箱
+        </div>
+    </div>
+</body>
+<script>
+    $(function () {
+        $("#LoginForm").submit(function () {
+            var emailInput=$("#inputEmail").val();
+            var t=emailInput.substring(emailInput.indexOf("@")+1)
+            // console.log($("#notFormalEmail"))
+            if(!t.includes("qq.com")){
+                if($("#notFormalEmail").length>0){
+                    $("#notFormalEmail").css({"display":"block"})
+                }else {
+                   $("#LoginForm").after($("<div id=\"notFormalEmail\" class=\"alert alert-danger alert-dismissible\" role=\"alert\" style=\"display:block;\">\n" +
+                       "            <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>\n" +
+                       "            <strong>警告!</strong> 邮箱地址必须是qq邮箱\n" +
+                       "        </div>"));
+                }
+                return false;
+            }else{
+                window.parent.location.reload();
+                return true;
+            }
+
+        });
+    });
+</script>
+</html>
